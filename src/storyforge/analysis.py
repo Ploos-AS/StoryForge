@@ -1,7 +1,7 @@
 from collections import defaultdict, deque
 from dataclasses import dataclass
 
-from .state import apply_effects, available_choices
+from .state import apply_effects, available_choices, initial_state
 
 
 StateKey = tuple[str, tuple[tuple[str, object], ...]]
@@ -19,7 +19,7 @@ def _freeze(state: dict) -> tuple[tuple[str, object], ...]:
 
 
 def build_state_graph(story: dict):
-    initial = dict(story.get("variables", {}))
+    initial = initial_state(story)
     start: StateKey = (story["start"], _freeze(initial))
     queue = deque([(story["start"], initial)])
     visited = {start}
