@@ -12,6 +12,7 @@ def requirements_met(requirements: list[dict], state: dict) -> bool:
 
 def apply_effects(effects: list[dict], state: dict) -> dict:
     result = dict(state)
+    had_inventory = "_inventory" in result
     inventory = set(result.get("_inventory", ()))
     for effect in effects:
         if "take_item" in effect:
@@ -26,7 +27,8 @@ def apply_effects(effects: list[dict], state: dict) -> dict:
                 result[name] = result.get(name, 0) + effect["increment"]
             elif "decrement" in effect:
                 result[name] = result.get(name, 0) - effect["decrement"]
-    result["_inventory"] = tuple(sorted(inventory))
+    if had_inventory or any("take_item" in effect or "drop_item" in effect for effect in effects):
+        result["_inventory"] = tuple(sorted(inventory))
     return result
 
 
