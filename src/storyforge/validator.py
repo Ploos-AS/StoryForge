@@ -8,6 +8,9 @@ def validate_story(story: dict) -> list[str]:
     variables = story.get("variables", {})
     items = story.get("items", {})
     characters = story.get("characters", {})
+    for character in story.get("character_state", {}):
+        if character not in characters:
+            errors.append(f"character_state references unknown character {character!r}")
     for item, character in story.get("ownership", {}).items():
         if item not in items:
             errors.append(f"ownership references unknown item {item!r}")
@@ -34,6 +37,9 @@ def validate_story(story: dict) -> list[str]:
             for req in choice.get("requires", []):
                 if "variable" in req and req.get("variable") not in variables:
                     errors.append(f"choice in {scene_id!r} requires unknown variable {req.get('variable')!r}")
+                char_req = req.get("character")
+                if char_req and char_req["id"] not in characters:
+                    errors.append(f"choice in {scene_id!r} references unknown character {char_req['id']!r}")
                 owned = req.get("owned_by")
                 if owned:
                     if owned["item"] not in items:
@@ -46,6 +52,9 @@ def validate_story(story: dict) -> list[str]:
             for effect in choice.get("effects", []):
                 if "variable" in effect and effect.get("variable") not in variables:
                     errors.append(f"choice in {scene_id!r} changes unknown variable {effect.get('variable')!r}")
+                char_effect = effect.get("character")
+                if char_effect and char_effect["id"] not in characters:
+                    errors.append(f"choice in {scene_id!r} changes unknown character {char_effect['id']!r}")
                 given = effect.get("give_item")
                 if given:
                     if given["item"] not in items:

@@ -125,6 +125,33 @@
                           }
                         },
                         "additionalProperties": false
+                      },
+                      "character": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "attribute",
+                          "equals"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "attribute": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "equals": {
+                            "type": [
+                              "boolean",
+                              "integer",
+                              "number",
+                              "string"
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "additionalProperties": false,
@@ -225,6 +252,40 @@
                             }
                           ]
                         }
+                      },
+                      {
+                        "required": [
+                          "character"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "equals"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "has_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "lacks_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "owned_by"
+                              ]
+                            }
+                          ]
+                        }
                       }
                     ]
                   }
@@ -276,6 +337,55 @@
                             "minLength": 1
                           }
                         },
+                        "additionalProperties": false
+                      },
+                      "character": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "attribute"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "attribute": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "set": {
+                            "type": [
+                              "boolean",
+                              "integer",
+                              "number",
+                              "string"
+                            ]
+                          },
+                          "increment": {
+                            "type": "number"
+                          },
+                          "decrement": {
+                            "type": "number"
+                          }
+                        },
+                        "oneOf": [
+                          {
+                            "required": [
+                              "set"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "increment"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "decrement"
+                            ]
+                          }
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -472,6 +582,50 @@
                             {
                               "required": [
                                 "drop_item"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "character"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "set"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "increment"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "decrement"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "take_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "drop_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "give_item"
                               ]
                             }
                           ]
@@ -835,6 +989,20 @@
       "additionalProperties": {
         "type": "string",
         "minLength": 1
+      }
+    },
+    "character_state": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": [
+            "boolean",
+            "integer",
+            "number",
+            "string"
+          ]
+        }
       }
     }
   },
