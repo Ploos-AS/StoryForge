@@ -1,7 +1,7 @@
 from collections import deque
 from dataclasses import dataclass
 
-from .state import apply_effects, available_choices
+from .state import apply_effects, available_choices, initial_state
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ def _freeze(state: dict) -> tuple[tuple[str, object], ...]:
 def solve(story: dict) -> dict[str, Solution]:
     """Return the shortest deterministic walkthrough found for each ending."""
     start = story["start"]
-    initial = dict(story.get("variables", {}))
+    initial = initial_state(story)
     queue = deque([(start, initial, tuple())])
     visited = {(start, _freeze(initial))}
     solutions: dict[str, Solution] = {}

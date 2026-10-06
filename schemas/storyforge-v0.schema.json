@@ -87,10 +87,6 @@
                   "type": "array",
                   "items": {
                     "type": "object",
-                    "required": [
-                      "variable",
-                      "equals"
-                    ],
                     "properties": {
                       "variable": {
                         "type": "string",
@@ -103,18 +99,93 @@
                           "number",
                           "string"
                         ]
+                      },
+                      "has_item": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "lacks_item": {
+                        "type": "string",
+                        "minLength": 1
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "oneOf": [
+                      {
+                        "required": [
+                          "variable",
+                          "equals"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "has_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "lacks_item"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "has_item"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "equals"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "lacks_item"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "lacks_item"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "equals"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "has_item"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
                   }
                 },
                 "effects": {
                   "type": "array",
                   "items": {
                     "type": "object",
-                    "required": [
-                      "variable"
-                    ],
                     "properties": {
                       "variable": {
                         "type": "string",
@@ -133,11 +204,20 @@
                       },
                       "decrement": {
                         "type": "number"
+                      },
+                      "take_item": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "drop_item": {
+                        "type": "string",
+                        "minLength": 1
                       }
                     },
                     "oneOf": [
                       {
                         "required": [
+                          "variable",
                           "set"
                         ],
                         "not": {
@@ -151,12 +231,23 @@
                               "required": [
                                 "decrement"
                               ]
+                            },
+                            {
+                              "required": [
+                                "take_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "drop_item"
+                              ]
                             }
                           ]
                         }
                       },
                       {
                         "required": [
+                          "variable",
                           "increment"
                         ],
                         "not": {
@@ -170,12 +261,23 @@
                               "required": [
                                 "decrement"
                               ]
+                            },
+                            {
+                              "required": [
+                                "take_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "drop_item"
+                              ]
                             }
                           ]
                         }
                       },
                       {
                         "required": [
+                          "variable",
                           "decrement"
                         ],
                         "not": {
@@ -188,6 +290,84 @@
                             {
                               "required": [
                                 "increment"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "take_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "drop_item"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "take_item"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "set"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "increment"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "decrement"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "drop_item"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "drop_item"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "set"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "increment"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "decrement"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "take_item"
                               ]
                             }
                           ]
@@ -237,6 +417,14 @@
           }
         },
         "additionalProperties": false
+      }
+    },
+    "inventory": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
       }
     }
   },

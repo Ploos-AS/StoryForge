@@ -10,8 +10,8 @@ locations:
   lighthouse: {name: Lighthouse}
 items:
   rusty_key: {name: Rusty key}
+inventory: []
 variables:
-  has_key: false
   door_open: false
 scenes:
   harbour:
@@ -19,14 +19,14 @@ scenes:
     choices:
       - text: "Pick up the rusty key and walk to the lighthouse"
         effects:
-          - {variable: has_key, set: true}
+          - {take_item: rusty_key}
         goto: lighthouse
   lighthouse:
     text: "The old lighthouse door stands before you."
     choices:
       - text: "Unlock the door"
         requires:
-          - {variable: has_key, equals: true}
+          - {has_item: rusty_key}
         effects:
           - {variable: door_open, set: true}
         ending: opened
