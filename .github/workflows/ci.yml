@@ -11,3 +11,5 @@ jobs:
       - run: pytest
       - run: storyforge validate examples/lighthouse/story.yaml
       - run: storyforge export renpy examples/lighthouse/story.yaml -o build/lighthouse/script.rpy
+      - run: storyforge init build/new-story --title "CI Story"
+      - run: storyforge validate build/new-story/story.yaml
