@@ -8,6 +8,7 @@ from .validator import validate_story
 from .exporters.renpy import export_renpy
 from .solver import solve, unreachable_endings
 from .analysis import dead_states
+from .limits import StateSpaceLimitError
 
 
 TEMPLATE = {
@@ -46,9 +47,11 @@ def main() -> int:
 
     analyze = sub.add_parser("analyze")
     analyze.add_argument("story")
+    analyze.add_argument("--max-states", type=int, default=10_000)
 
     solve_cmd = sub.add_parser("solve")
     solve_cmd.add_argument("story")
+    solve_cmd.add_argument("--max-states", type=int, default=10_000)
 
     export = sub.add_parser("export")
     export.add_argument("target", choices=["renpy"])
@@ -85,7 +88,11 @@ def main() -> int:
         return 0
 
     if args.command == "analyze":
-        dead = dead_states(story)
+        try:
+            dead = dead_states(story, max_states=args.max_states)
+        except StateSpaceLimitError as error:
+            print(f"LIMIT: {error}")
+            return 4
         if not dead:
             print("OK: no dead states")
             return 0
@@ -94,12 +101,16 @@ def main() -> int:
         return 3
 
     if args.command == "solve":
-        solutions = solve(story)
+        try:
+            solutions = solve(story, max_states=args.max_states)
+        except StateSpaceLimitError as error:
+            print(f"LIMIT: {error}")
+            return 4
         for ending, solution in solutions.items():
             print(f"ENDING {ending}")
             for number, step in enumerate(solution.steps, 1):
                 print(f"  {number}. [{step.scene}] {step.choice}")
-        missing = unreachable_endings(story)
+        missing = sorted(set(story.get("endings", {})) - set(solutions))
         if missing:
             for ending in missing:
                 print(f"UNREACHABLE {ending}")
