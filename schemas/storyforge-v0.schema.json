@@ -376,6 +376,283 @@
                     ],
                     "additionalProperties": false
                   }
+                },
+                "action": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "item"
+                      ],
+                      "properties": {
+                        "type": {
+                          "const": "take"
+                        },
+                        "item": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "item"
+                      ],
+                      "properties": {
+                        "type": {
+                          "const": "drop"
+                        },
+                        "item": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "item"
+                      ],
+                      "properties": {
+                        "type": {
+                          "const": "use"
+                        },
+                        "item": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "effects": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "variable": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "set": {
+                                "type": [
+                                  "boolean",
+                                  "integer",
+                                  "number",
+                                  "string"
+                                ]
+                              },
+                              "increment": {
+                                "type": "number"
+                              },
+                              "decrement": {
+                                "type": "number"
+                              },
+                              "take_item": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "drop_item": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "oneOf": [
+                              {
+                                "required": [
+                                  "variable",
+                                  "set"
+                                ],
+                                "not": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "increment"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "decrement"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "take_item"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "drop_item"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "required": [
+                                  "variable",
+                                  "increment"
+                                ],
+                                "not": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "set"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "decrement"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "take_item"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "drop_item"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "required": [
+                                  "variable",
+                                  "decrement"
+                                ],
+                                "not": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "set"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "increment"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "take_item"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "drop_item"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "required": [
+                                  "take_item"
+                                ],
+                                "not": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "variable"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "set"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "increment"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "decrement"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "drop_item"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "required": [
+                                  "drop_item"
+                                ],
+                                "not": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "variable"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "set"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "increment"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "decrement"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "take_item"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "left",
+                        "right",
+                        "result"
+                      ],
+                      "properties": {
+                        "type": {
+                          "const": "combine"
+                        },
+                        "left": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "right": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
                 }
               },
               "oneOf": [
