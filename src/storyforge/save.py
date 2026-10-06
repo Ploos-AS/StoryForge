@@ -39,7 +39,7 @@ def load_session(story: dict, data: dict) -> Session:
     if data.get("version") != SAVE_VERSION:
         raise SaveError(f"unsupported save version: {data.get('version')!r}")
 
-    scene = data.get("scene")
+    saved_story = data.get("story")\n    if saved_story is not None:\n        metadata = story.get("metadata", {})\n        current = {"id": metadata.get("id"), "version": metadata.get("version")}\n        if saved_story != current:\n            raise SaveError(f"save is for a different story/version: {saved_story!r}")\n\n    scene = data.get("scene")
     ending = data.get("ending")
     if scene not in story.get("scenes", {}):
         raise SaveError(f"unknown saved scene: {scene!r}")
