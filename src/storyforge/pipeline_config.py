@@ -9,7 +9,8 @@ from .authoring import (
     PUZZLE_DESIGNER,
     WRITER,
 )
-from .editorial import EditorialStage
+from .editorial import EditorialStage, GateResult
+from .gates import all_gates, puzzle_solver_gate
 
 
 PIPELINE_FORMAT = "storyforge-pipeline"
@@ -37,6 +38,27 @@ ROLES = {
 @dataclass(frozen=True)
 class PipelineConfig:
     stages: tuple[EditorialStage, ...]
+
+
+def approval_required_gate(story, proposal):
+    return GateResult(False, "human approval required")
+
+
+def _load_gate(raw, stage_name):
+    if raw is None:
+        return None
+    names = raw if isinstance(raw, list) else [raw]
+    if not names or not all(isinstance(name, str) for name in names):
+        raise PipelineConfigError(f"stage {stage_name!r} gate must be a string or non-empty list")
+    gates = []
+    for name in names:
+        if name == "puzzle-solver":
+            gates.append(puzzle_solver_gate)
+        elif name == "human-approval":
+            gates.append(approval_required_gate)
+        else:
+            raise PipelineConfigError(f"stage {stage_name!r} has unknown gate {name!r}")
+    return gates[0] if len(gates) == 1 else all_gates(*gates)
 
 
 def load_pipeline_config(data: dict) -> PipelineConfig:
@@ -68,13 +90,15 @@ def load_pipeline_config(data: dict) -> PipelineConfig:
         if not isinstance(apply, bool):
             raise PipelineConfigError(f"stage {name!r} apply must be boolean")
 
-        unknown = set(raw) - {"name", "role", "instruction", "apply"}
+        gate = _load_gate(raw.get("gate"), name)
+
+        unknown = set(raw) - {"name", "role", "instruction", "apply", "gate"}
         if unknown:
             raise PipelineConfigError(
                 f"stage {name!r} has unsupported fields: {', '.join(sorted(unknown))}"
             )
 
-        stages.append(EditorialStage(name, ROLES[role_name], instruction, apply))
+        stages.append(EditorialStage(name, ROLES[role_name], instruction, apply, gate))
         names.add(name)
 
     return PipelineConfig(tuple(stages))
