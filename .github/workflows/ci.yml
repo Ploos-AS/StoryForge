@@ -14,3 +14,4 @@ jobs:
       - run: storyforge init build/new-story --title "CI Story"
       - run: storyforge validate build/new-story/story.yaml
       - run: storyforge solve examples/lighthouse/story.yaml
+      - run: storyforge solve examples/lighthouse/story.yaml
