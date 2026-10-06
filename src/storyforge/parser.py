@@ -14,7 +14,7 @@ def _normalize(text: str) -> str:
     return " ".join(text.split())
 
 
-def parse_command(text: str, choices: tuple[str, ...]) -> Command:
+def parse_command(text: str, choices: tuple[str, ...], commands: tuple[tuple[str, ...], ...] | None = None) -> Command:
     value = _normalize(text)
     if value in {"look", "l", "se", "se deg rundt"}:
         return Command("look")
@@ -29,6 +29,16 @@ def parse_command(text: str, choices: tuple[str, ...]) -> Command:
         if 0 <= index < len(choices):
             return Command("choose", index)
         return Command("unknown")
+
+    if commands is not None:
+        matches = []
+        for index, aliases in enumerate(commands):
+            if value in {_normalize(alias) for alias in aliases}:
+                matches.append(index)
+        if len(matches) == 1:
+            return Command("choose", matches[0])
+        if len(matches) > 1:
+            return Command("unknown")
 
     exact = [_normalize(choice) for choice in choices]
     if value in exact:

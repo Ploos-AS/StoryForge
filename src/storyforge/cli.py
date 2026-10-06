@@ -101,7 +101,9 @@ def main() -> int:
             if not turn.choices:
                 print("No available choices.")
                 return 3
-            command = parse_command(input("> "), turn.choices)
+            structured = session.choices()
+            commands = tuple(tuple(choice.get("commands", ())) for choice in structured)
+            command = parse_command(input("> "), turn.choices, commands)
             if command.kind == "choose":
                 session.choose(command.choice)
             elif command.kind == "look":
