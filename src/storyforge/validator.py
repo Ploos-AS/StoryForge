@@ -7,6 +7,12 @@ def validate_story(story: dict) -> list[str]:
         errors.append("storyforge must be '0'")
     variables = story.get("variables", {})
     items = story.get("items", {})
+    characters = story.get("characters", {})
+    for item, character in story.get("ownership", {}).items():
+        if item not in items:
+            errors.append(f"ownership references unknown item {item!r}")
+        if character not in characters:
+            errors.append(f"ownership references unknown character {character!r}")
     for item in story.get("inventory", []):
         if item not in items:
             errors.append(f"initial inventory references unknown item {item!r}")
@@ -28,12 +34,24 @@ def validate_story(story: dict) -> list[str]:
             for req in choice.get("requires", []):
                 if "variable" in req and req.get("variable") not in variables:
                     errors.append(f"choice in {scene_id!r} requires unknown variable {req.get('variable')!r}")
+                owned = req.get("owned_by")
+                if owned:
+                    if owned["item"] not in items:
+                        errors.append(f"choice in {scene_id!r} references unknown item {owned['item']!r}")
+                    if owned["character"] not in characters:
+                        errors.append(f"choice in {scene_id!r} references unknown character {owned['character']!r}")
                 item = req.get("has_item") or req.get("lacks_item")
                 if item and item not in items:
                     errors.append(f"choice in {scene_id!r} references unknown item {item!r}")
             for effect in choice.get("effects", []):
                 if "variable" in effect and effect.get("variable") not in variables:
                     errors.append(f"choice in {scene_id!r} changes unknown variable {effect.get('variable')!r}")
+                given = effect.get("give_item")
+                if given:
+                    if given["item"] not in items:
+                        errors.append(f"choice in {scene_id!r} changes unknown item {given['item']!r}")
+                    if given["character"] not in characters:
+                        errors.append(f"choice in {scene_id!r} references unknown character {given['character']!r}")
                 item = effect.get("take_item") or effect.get("drop_item")
                 if item and item not in items:
                     errors.append(f"choice in {scene_id!r} changes unknown item {item!r}")

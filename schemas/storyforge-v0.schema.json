@@ -107,6 +107,24 @@
                       "lacks_item": {
                         "type": "string",
                         "minLength": 1
+                      },
+                      "owned_by": {
+                        "type": "object",
+                        "required": [
+                          "item",
+                          "character"
+                        ],
+                        "properties": {
+                          "item": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "character": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "additionalProperties": false,
@@ -178,6 +196,35 @@
                             }
                           ]
                         }
+                      },
+                      {
+                        "required": [
+                          "owned_by"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "equals"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "has_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "lacks_item"
+                              ]
+                            }
+                          ]
+                        }
                       }
                     ]
                   }
@@ -212,6 +259,24 @@
                       "drop_item": {
                         "type": "string",
                         "minLength": 1
+                      },
+                      "give_item": {
+                        "type": "object",
+                        "required": [
+                          "item",
+                          "character"
+                        ],
+                        "properties": {
+                          "item": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "character": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "oneOf": [
@@ -368,6 +433,45 @@
                             {
                               "required": [
                                 "take_item"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "give_item"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "variable"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "set"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "increment"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "decrement"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "take_item"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "drop_item"
                               ]
                             }
                           ]
@@ -629,6 +733,28 @@
                       "type": "object",
                       "required": [
                         "type",
+                        "item",
+                        "character"
+                      ],
+                      "properties": {
+                        "type": {
+                          "const": "give"
+                        },
+                        "item": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "character": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
                         "left",
                         "right",
                         "result"
@@ -700,6 +826,13 @@
       "type": "array",
       "uniqueItems": true,
       "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": {
         "type": "string",
         "minLength": 1
       }
