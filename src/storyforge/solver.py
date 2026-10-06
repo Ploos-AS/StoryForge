@@ -1,6 +1,7 @@
 from collections import deque
 from dataclasses import dataclass
 
+from .limits import DEFAULT_MAX_STATES, StateSpaceLimitError
 from .state import apply_effects, available_choices, initial_state
 
 
@@ -21,7 +22,7 @@ def _freeze(state: dict) -> tuple[tuple[str, object], ...]:
     return tuple(sorted(state.items()))
 
 
-def solve(story: dict) -> dict[str, Solution]:
+def solve(story: dict, max_states: int = DEFAULT_MAX_STATES) -> dict[str, Solution]:
     """Return the shortest deterministic walkthrough found for each ending."""
     start = story["start"]
     initial = initial_state(story)
@@ -46,12 +47,14 @@ def solve(story: dict) -> dict[str, Solution]:
             target = choice["goto"]
             key = (target, _freeze(next_state))
             if key not in visited:
+                if len(visited) >= max_states:
+                    raise StateSpaceLimitError(max_states)
                 visited.add(key)
                 queue.append((target, next_state, next_steps))
 
     return solutions
 
 
-def unreachable_endings(story: dict) -> list[str]:
-    reached = solve(story)
+def unreachable_endings(story: dict, max_states: int = DEFAULT_MAX_STATES) -> list[str]:
+    reached = solve(story, max_states=max_states)
     return sorted(set(story.get("endings", {})) - set(reached))
