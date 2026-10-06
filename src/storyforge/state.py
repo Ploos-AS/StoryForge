@@ -47,7 +47,8 @@ def initial_state(story: dict) -> dict:
     state = dict(story.get("variables", {}))
     state["_inventory"] = tuple(sorted(story.get("inventory", [])))
     ownership = story.get("ownership", {})
-    state["_owners"] = tuple(sorted(ownership.items()))
+    if ownership:
+        state["_owners"] = tuple(sorted(ownership.items()))
     return state
 
 
