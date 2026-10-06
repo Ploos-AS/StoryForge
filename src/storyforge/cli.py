@@ -7,7 +7,6 @@ from .schema import validate_schema
 from .validator import validate_story
 from .exporters.renpy import export_renpy
 from .solver import solve, unreachable_endings
-from .solver import solve, unreachable_endings
 
 
 TEMPLATE = {
@@ -47,9 +46,6 @@ def main() -> int:
     solve_cmd = sub.add_parser("solve")
     solve_cmd.add_argument("story")
 
-    solve_cmd = sub.add_parser("solve")
-    solve_cmd.add_argument("story")
-
     export = sub.add_parser("export")
     export.add_argument("target", choices=["renpy"])
     export.add_argument("story")
@@ -82,19 +78,6 @@ def main() -> int:
 
     if args.command == "validate":
         print("OK")
-        return 0
-
-    if args.command == "solve":
-        solutions = solve(story)
-        for ending, solution in solutions.items():
-            print(f"ENDING {ending}")
-            for number, step in enumerate(solution.steps, 1):
-                print(f"  {number}. [{step.scene}] {step.choice}")
-        missing = unreachable_endings(story)
-        if missing:
-            for ending in missing:
-                print(f"UNREACHABLE {ending}")
-            return 2
         return 0
 
     if args.command == "solve":
