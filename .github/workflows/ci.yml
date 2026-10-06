@@ -15,3 +15,4 @@ jobs:
       - run: storyforge validate build/new-story/story.yaml
       - run: storyforge solve examples/lighthouse/story.yaml
       - run: storyforge solve examples/lighthouse/story.yaml
+      - run: storyforge analyze examples/lighthouse/story.yaml
