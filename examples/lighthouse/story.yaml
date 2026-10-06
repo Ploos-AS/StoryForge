@@ -10,17 +10,27 @@ locations:
   lighthouse: {name: Lighthouse}
 items:
   rusty_key: {name: Rusty key}
-variables: {}
+variables:
+  has_key: false
+  door_open: false
 scenes:
   harbour:
-    text: "Rain sweeps across the harbour. The lighthouse is dark."
+    text: "Rain sweeps across the harbour. Something glints beside a crate."
     choices:
-      - {text: "Walk to the lighthouse", goto: lighthouse}
+      - text: "Pick up the rusty key and walk to the lighthouse"
+        effects:
+          - {variable: has_key, set: true}
+        goto: lighthouse
   lighthouse:
     text: "The old lighthouse door stands before you."
     choices:
-      - {text: "Knock on the door", ending: unanswered}
+      - text: "Unlock the door"
+        requires:
+          - {variable: has_key, equals: true}
+        effects:
+          - {variable: door_open, set: true}
+        ending: opened
       - {text: "Return to the harbour", goto: harbour}
 endings:
-  unanswered:
-    text: "No one answers. For tonight, the mystery remains."
+  opened:
+    text: "The rusty lock yields. Darkness waits beyond the door."
