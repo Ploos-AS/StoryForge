@@ -6,6 +6,10 @@ def validate_story(story: dict) -> list[str]:
     if story.get("storyforge") != "0":
         errors.append("storyforge must be '0'")
     variables = story.get("variables", {})
+    items = story.get("items", {})
+    for item in story.get("inventory", []):
+        if item not in items:
+            errors.append(f"initial inventory references unknown item {item!r}")
     start = story.get("start")
     scenes = story.get("scenes", {})
     endings = story.get("endings", {})
@@ -22,11 +26,17 @@ def validate_story(story: dict) -> list[str]:
             continue
         for choice in scene.get("choices", []):
             for req in choice.get("requires", []):
-                if req.get("variable") not in variables:
+                if "variable" in req and req.get("variable") not in variables:
                     errors.append(f"choice in {scene_id!r} requires unknown variable {req.get('variable')!r}")
+                item = req.get("has_item") or req.get("lacks_item")
+                if item and item not in items:
+                    errors.append(f"choice in {scene_id!r} references unknown item {item!r}")
             for effect in choice.get("effects", []):
-                if effect.get("variable") not in variables:
+                if "variable" in effect and effect.get("variable") not in variables:
                     errors.append(f"choice in {scene_id!r} changes unknown variable {effect.get('variable')!r}")
+                item = effect.get("take_item") or effect.get("drop_item")
+                if item and item not in items:
+                    errors.append(f"choice in {scene_id!r} changes unknown item {item!r}")
             target, ending = choice.get("goto"), choice.get("ending")
             if bool(target) == bool(ending):
                 errors.append(f"choice in {scene_id!r} must have exactly one of goto or ending")
