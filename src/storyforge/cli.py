@@ -4,6 +4,8 @@ import re
 import yaml
 
 from .loader import load_story
+from .migration_loader import load_migrations, validate_migrations
+from .migrations import MigrationError
 from .schema import validate_schema
 from .validator import validate_story
 from .exporters.renpy import export_renpy
@@ -35,6 +37,9 @@ TEMPLATE = {
 def main() -> int:
     parser = argparse.ArgumentParser(prog="storyforge")
     sub = parser.add_subparsers(dest="command", required=True)
+
+    vm = sub.add_parser("validate-migrations")
+    vm.add_argument("directory")
 
     init = sub.add_parser("init")
     init.add_argument("directory")
@@ -120,6 +125,16 @@ def main() -> int:
                 print("Commands: choice number/text, look, inventory, help")
             else:
                 print("I don't understand that command.")
+
+    if args.command == "validate-migrations":
+        try:
+            migrations = load_migrations(args.directory)
+            validate_migrations(migrations)
+        except MigrationError as exc:
+            print(f"invalid migrations: {exc}")
+            return 2
+        print(f"valid migrations: {len(migrations)}")
+        return 0
 
     if args.command == "validate":
         print("OK")
