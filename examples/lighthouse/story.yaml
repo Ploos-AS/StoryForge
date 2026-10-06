@@ -17,24 +17,24 @@ scenes:
   harbour:
     text: "Rain sweeps across the harbour. Something glints beside a crate."
     choices:
-      - text: "Pick up the rusty key and walk to the lighthouse"
+      - id: take_key\n        text: "Pick up the rusty key and walk to the lighthouse"
         commands: ["take key", "take rusty key", "pick up key"]
         action: {type: take, item: rusty_key}
         goto: lighthouse
-      - text: "Walk back to the lighthouse"
+      - id: walk_lighthouse\n        text: "Walk back to the lighthouse"
         requires:
           - {has_item: rusty_key}
         goto: lighthouse
   lighthouse:
     text: "The old lighthouse door stands before you."
     choices:
-      - text: "Unlock the door"
+      - id: unlock_door\n        text: "Unlock the door"
         requires:
           - {has_item: rusty_key}
         effects:
           - {variable: door_open, set: true}
         ending: opened
-      - {text: "Return to the harbour", goto: harbour}
+      - {id: return_harbour, text: "Return to the harbour", goto: harbour}
 endings:
   opened:
     text: "The rusty lock yields. Darkness waits beyond the door."
