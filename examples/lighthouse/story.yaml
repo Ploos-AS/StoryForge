@@ -18,8 +18,7 @@ scenes:
     text: "Rain sweeps across the harbour. Something glints beside a crate."
     choices:
       - text: "Pick up the rusty key and walk to the lighthouse"
-        effects:
-          - {take_item: rusty_key}
+        action: {type: take, item: rusty_key}
         goto: lighthouse
   lighthouse:
     text: "The old lighthouse door stands before you."
