@@ -63,6 +63,17 @@ DIALOGUE_EDITOR = AuthoringRole(
     ),
 )
 
+PUZZLE_DESIGNER = AuthoringRole(
+    name="puzzle-designer",
+    constraints=(
+        "Return only explicit add/replace proposal operations.",
+        "Express puzzle state, requirements, and effects in deterministic StoryForge IR.",
+        "Do not rely on prose or model inference for puzzle correctness.",
+        "Preserve at least one reachable ending.",
+        "Do not introduce dead ends, softlocks, or inventory deadlocks.",
+    ),
+)
+
 
 def writer_request(story: dict, instruction: str) -> AuthoringRequest:
     return WRITER.request(story, instruction)
@@ -80,3 +91,13 @@ def propose_with_dialogue_editor(
     provider: AuthoringProvider, story: dict, instruction: str
 ) -> Proposal:
     return DIALOGUE_EDITOR.propose(provider, story, instruction)
+
+
+def puzzle_request(story: dict, instruction: str) -> AuthoringRequest:
+    return PUZZLE_DESIGNER.request(story, instruction)
+
+
+def propose_with_puzzle_designer(
+    provider: AuthoringProvider, story: dict, instruction: str
+) -> Proposal:
+    return PUZZLE_DESIGNER.propose(provider, story, instruction)
