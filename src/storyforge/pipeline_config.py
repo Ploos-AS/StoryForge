@@ -61,7 +61,7 @@ def _load_gate(raw, stage_name):
     return gates[0] if len(gates) == 1 else all_gates(*gates)
 
 
-def load_pipeline_config(data: dict) -> PipelineConfig:
+def load_pipeline_config(data: dict, approvals: dict[str, object] | None = None) -> PipelineConfig:
     if data.get("format") != PIPELINE_FORMAT:
         raise PipelineConfigError("unsupported pipeline format")
     if data.get("version") != PIPELINE_VERSION:
@@ -90,7 +90,19 @@ def load_pipeline_config(data: dict) -> PipelineConfig:
         if not isinstance(apply, bool):
             raise PipelineConfigError(f"stage {name!r} apply must be boolean")
 
-        gate = _load_gate(raw.get("gate"), name)
+        raw_gate = raw.get("gate")
+        if approvals and name in approvals:
+            from .gates import approval_gate
+            names = raw_gate if isinstance(raw_gate, list) else [raw_gate]
+            gates = []
+            for gate_name in names:
+                if gate_name == "human-approval":
+                    gates.append(approval_gate(approvals[name]))
+                else:
+                    gates.append(_load_gate(gate_name, name))
+            gate = gates[0] if len(gates) == 1 else all_gates(*gates)
+        else:
+            gate = _load_gate(raw_gate, name)
 
         unknown = set(raw) - {"name", "role", "instruction", "apply", "gate"}
         if unknown:

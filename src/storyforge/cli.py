@@ -15,9 +15,9 @@ from .analysis import dead_states
 from .limits import StateSpaceLimitError
 from .runtime import Session
 from .parser import parse_command
-from .approval import approve, reject
+from .approval import approve, reject, load_approval
 from .editorial_run import dump_editorial_result, restore_editorial_result
-from .editorial import run_editorial_pipeline
+from .editorial import run_editorial_pipeline, resume_editorial_pipeline
 from .pipeline_config import load_pipeline_config
 from .provider_config import load_provider_config
 from .provider_runtime import resolve_role_providers
@@ -80,6 +80,13 @@ def main() -> int:
     run.add_argument("--providers", required=True)
     run.add_argument("-o", "--output", required=True)
 
+    resume = sub.add_parser("resume")
+    resume.add_argument("run")
+    resume.add_argument("--pipeline", required=True)
+    resume.add_argument("--providers", required=True)
+    resume.add_argument("--approval", action="append", default=[])
+    resume.add_argument("-o", "--output", required=True)
+
     status = sub.add_parser("run-status")
     status.add_argument("run")
 
@@ -128,6 +135,34 @@ def main() -> int:
         registry = load_provider_config(provider_data)
         providers = resolve_role_providers(registry, json_post_transport)
         result = run_editorial_pipeline(story, list(pipeline.stages), providers)
+        Path(args.output).write_text(
+            json.dumps(dump_editorial_result(result), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(args.output)
+        return 3 if result.halted else 0
+
+    if args.command == "resume":
+        previous = restore_editorial_result(
+            json.loads(Path(args.run).read_text(encoding="utf-8"))
+        )
+        approvals = {}
+        for path in args.approval:
+            approval = load_approval(json.loads(Path(path).read_text(encoding="utf-8")))
+            matches = [
+                item.stage for item in previous.stages
+                if item.proposal and approval.proposal == __import__("storyforge.approval", fromlist=["proposal_fingerprint"]).proposal_fingerprint(item.proposal)
+            ]
+            if len(matches) != 1:
+                print(f"ERROR: approval {path} does not uniquely match a run proposal")
+                return 2
+            approvals[matches[0]] = approval
+        pipeline_data = yaml.safe_load(Path(args.pipeline).read_text(encoding="utf-8"))
+        provider_data = yaml.safe_load(Path(args.providers).read_text(encoding="utf-8"))
+        pipeline = load_pipeline_config(pipeline_data, approvals)
+        registry = load_provider_config(provider_data)
+        providers = resolve_role_providers(registry, json_post_transport)
+        result = resume_editorial_pipeline(previous, list(pipeline.stages), providers)
         Path(args.output).write_text(
             json.dumps(dump_editorial_result(result), indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",

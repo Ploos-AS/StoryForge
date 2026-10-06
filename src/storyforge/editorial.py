@@ -80,10 +80,33 @@ def resume_editorial_pipeline(
                 f"{result.stage!r} != {stages[index].name!r}"
             )
 
-    remaining = stages[completed:]
-    continued = run_editorial_pipeline(previous.story, remaining, providers)
+    prefix = previous.stages
+    current = previous.story
+    next_index = completed
+
+    if previous.halted:
+        if not previous.stages:
+            raise ValueError("halted run has no blocked stage")
+        blocked_index = completed - 1
+        blocked = previous.stages[-1]
+        stage = stages[blocked_index]
+        if stage.gate is None:
+            raise ValueError("halted stage has no gate")
+        gate_result = stage.gate(current, blocked.proposal)
+        retried = StageResult(stage.name, blocked.proposal, False, gate_result)
+        prefix = previous.stages[:-1] + (retried,)
+        if not gate_result.accepted:
+            return EditorialResult(current, prefix, halted=True)
+        if stage.apply:
+            current = apply_proposal(current, blocked.proposal)
+            prefix = previous.stages[:-1] + (
+                StageResult(stage.name, blocked.proposal, True, gate_result),
+            )
+        next_index = blocked_index + 1
+
+    continued = run_editorial_pipeline(current, stages[next_index:], providers)
     return EditorialResult(
         continued.story,
-        previous.stages + continued.stages,
+        prefix + continued.stages,
         halted=continued.halted,
     )
