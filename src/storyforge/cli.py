@@ -7,6 +7,7 @@ from .schema import validate_schema
 from .validator import validate_story
 from .exporters.renpy import export_renpy
 from .solver import solve, unreachable_endings
+from .analysis import dead_states
 
 
 TEMPLATE = {
@@ -42,6 +43,9 @@ def main() -> int:
 
     validate = sub.add_parser("validate")
     validate.add_argument("story")
+
+    analyze = sub.add_parser("analyze")
+    analyze.add_argument("story")
 
     solve_cmd = sub.add_parser("solve")
     solve_cmd.add_argument("story")
@@ -79,6 +83,15 @@ def main() -> int:
     if args.command == "validate":
         print("OK")
         return 0
+
+    if args.command == "analyze":
+        dead = dead_states(story)
+        if not dead:
+            print("OK: no dead states")
+            return 0
+        for item in dead:
+            print(f"{item.kind.upper()} [{item.scene}] {dict(item.state)}")
+        return 3
 
     if args.command == "solve":
         solutions = solve(story)
