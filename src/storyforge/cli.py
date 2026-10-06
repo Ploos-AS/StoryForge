@@ -10,6 +10,7 @@ from .solver import solve, unreachable_endings
 from .analysis import dead_states
 from .limits import StateSpaceLimitError
 from .runtime import Session
+from .parser import parse_command
 
 
 TEMPLATE = {
@@ -100,11 +101,18 @@ def main() -> int:
             if not turn.choices:
                 print("No available choices.")
                 return 3
-            try:
-                selected = int(input("> ")) - 1
-                session.choose(selected)
-            except (ValueError, RuntimeError) as error:
-                print(f"ERROR: {error}")
+            command = parse_command(input("> "), turn.choices)
+            if command.kind == "choose":
+                session.choose(command.choice)
+            elif command.kind == "look":
+                continue
+            elif command.kind == "inventory":
+                inventory = session.state.get("_inventory", ())
+                print("Inventory: " + (", ".join(inventory) if inventory else "(empty)"))
+            elif command.kind == "help":
+                print("Commands: choice number/text, look, inventory, help")
+            else:
+                print("I don't understand that command.")
 
     if args.command == "validate":
         print("OK")
