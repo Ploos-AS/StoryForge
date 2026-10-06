@@ -18,6 +18,11 @@ def compile_action(action: dict) -> tuple[list[dict], list[dict]]:
         item = action["item"]
         return [{"has_item": item}], list(action.get("effects", []))
 
+    if kind == "give":
+        item = action["item"]
+        character = action["character"]
+        return [{"has_item": item}], [{"give_item": {"item": item, "character": character}}]
+
     if kind == "combine":
         left = action["left"]
         right = action["right"]
