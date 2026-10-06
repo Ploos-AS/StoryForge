@@ -28,12 +28,18 @@ def validate_story(story: dict) -> list[str]:
     if start not in scenes:
         errors.append(f"start scene {start!r} does not exist")
     targets = {}
+    choice_ids: set[str] = set()
     for scene_id, scene in scenes.items():
         targets[scene_id] = []
         if not isinstance(scene, dict):
             errors.append(f"scene {scene_id!r} must be a mapping")
             continue
         for choice in scene.get("choices", []):
+            choice_id = choice.get("id")
+            if choice_id:
+                if choice_id in choice_ids:
+                    errors.append(f"duplicate choice id {choice_id!r}")
+                choice_ids.add(choice_id)
             for req in choice.get("requires", []):
                 if "variable" in req and req.get("variable") not in variables:
                     errors.append(f"choice in {scene_id!r} requires unknown variable {req.get('variable')!r}")
