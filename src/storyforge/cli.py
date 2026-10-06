@@ -22,6 +22,7 @@ from .pipeline_config import load_pipeline_config
 from .provider_config import load_provider_config
 from .provider_runtime import resolve_role_providers
 from .http_transport import json_post_transport
+from .version import storyforge_version
 
 
 TEMPLATE = {
@@ -44,6 +45,7 @@ TEMPLATE = {
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="storyforge")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {storyforge_version()}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     vm = sub.add_parser("validate-migrations")
