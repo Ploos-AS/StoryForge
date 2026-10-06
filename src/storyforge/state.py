@@ -39,7 +39,7 @@ def initial_state(story: dict) -> dict:
 
 
 def available_choices(scene: dict, state: dict) -> list[dict]:
-    return [
-        choice for choice in scene.get("choices", [])
-        if requirements_met(choice.get("requires", []), state)
-    ]
+    from .actions import compile_choice
+
+    choices = [compile_choice(choice) for choice in scene.get("choices", [])]
+    return [choice for choice in choices if requirements_met(choice.get("requires", []), state)]
