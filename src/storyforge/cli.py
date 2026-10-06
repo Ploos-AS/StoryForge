@@ -16,7 +16,12 @@ from .limits import StateSpaceLimitError
 from .runtime import Session
 from .parser import parse_command
 from .approval import approve, reject
-from .editorial_run import restore_editorial_result
+from .editorial_run import dump_editorial_result, restore_editorial_result
+from .editorial import run_editorial_pipeline
+from .pipeline_config import load_pipeline_config
+from .provider_config import load_provider_config
+from .provider_runtime import resolve_role_providers
+from .http_transport import json_post_transport
 
 
 TEMPLATE = {
@@ -69,6 +74,12 @@ def main() -> int:
     solve_cmd.add_argument("story")
     solve_cmd.add_argument("--max-states", type=int, default=10_000)
 
+    run = sub.add_parser("run")
+    run.add_argument("story")
+    run.add_argument("--pipeline", required=True)
+    run.add_argument("--providers", required=True)
+    run.add_argument("-o", "--output", required=True)
+
     status = sub.add_parser("run-status")
     status.add_argument("run")
 
@@ -103,6 +114,26 @@ def main() -> int:
         )
         print(story_path)
         return 0
+
+    if args.command == "run":
+        story = load_story(args.story)
+        errors = validate_schema(story) + validate_story(story)
+        if errors:
+            for error in errors:
+                print(f"ERROR: {error}")
+            return 1
+        pipeline_data = yaml.safe_load(Path(args.pipeline).read_text(encoding="utf-8"))
+        provider_data = yaml.safe_load(Path(args.providers).read_text(encoding="utf-8"))
+        pipeline = load_pipeline_config(pipeline_data)
+        registry = load_provider_config(provider_data)
+        providers = resolve_role_providers(registry, json_post_transport)
+        result = run_editorial_pipeline(story, list(pipeline.stages), providers)
+        Path(args.output).write_text(
+            json.dumps(dump_editorial_result(result), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(args.output)
+        return 3 if result.halted else 0
 
     if args.command in {"run-status", "review"}:
         data = json.loads(Path(args.run).read_text(encoding="utf-8"))
