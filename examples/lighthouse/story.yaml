@@ -20,6 +20,10 @@ scenes:
       - text: "Pick up the rusty key and walk to the lighthouse"
         action: {type: take, item: rusty_key}
         goto: lighthouse
+      - text: "Walk back to the lighthouse"
+        requires:
+          - {has_item: rusty_key}
+        goto: lighthouse
   lighthouse:
     text: "The old lighthouse door stands before you."
     choices:
