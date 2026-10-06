@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
-import yaml\nimport re
+import re
+import yaml
 
 from .loader import load_story
 from .schema import validate_schema
