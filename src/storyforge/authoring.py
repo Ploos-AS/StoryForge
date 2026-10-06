@@ -85,6 +85,17 @@ CONTINUITY_EDITOR = AuthoringRole(
     ),
 )
 
+GAME_DESIGNER = AuthoringRole(
+    name="game-designer",
+    constraints=(
+        "Return only explicit add/replace proposal operations.",
+        "Use deterministic StoryForge IR for gameplay structure and state.",
+        "Treat measured structure as evidence, not as a target to optimize blindly.",
+        "Preserve solvability and avoid dead ends or softlocks.",
+        "Prefer meaningful choices over branching that only inflates choice count.",
+    ),
+)
+
 
 def writer_request(story: dict, instruction: str) -> AuthoringRequest:
     return WRITER.request(story, instruction)
@@ -122,3 +133,13 @@ def propose_with_continuity_editor(
     provider: AuthoringProvider, story: dict, instruction: str
 ) -> Proposal:
     return CONTINUITY_EDITOR.propose(provider, story, instruction)
+
+
+def game_design_request(story: dict, instruction: str) -> AuthoringRequest:
+    return GAME_DESIGNER.request(story, instruction)
+
+
+def propose_with_game_designer(
+    provider: AuthoringProvider, story: dict, instruction: str
+) -> Proposal:
+    return GAME_DESIGNER.propose(provider, story, instruction)
