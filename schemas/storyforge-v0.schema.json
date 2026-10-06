@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ploos.no/storyforge/schema/v0",
+  "title": "StoryForge IR v0",
+  "type": "object",
+  "required": ["storyforge", "start", "scenes", "endings"],
+  "properties": {
+    "storyforge": {"const": "0"},
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "profile": {"enum": ["visual-novel", "point-and-click", "text-adventure"]}
+      },
+      "additionalProperties": true
+    },
+    "start": {"type": "string", "minLength": 1},
+    "characters": {"type": "object"},
+    "locations": {"type": "object"},
+    "items": {"type": "object"},
+    "variables": {"type": "object"},
+    "scenes": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "text": {"type": "string"},
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["text"],
+              "properties": {
+                "text": {"type": "string", "minLength": 1},
+                "goto": {"type": "string", "minLength": 1},
+                "ending": {"type": "string", "minLength": 1}
+              },
+              "oneOf": [
+                {"required": ["goto"], "not": {"required": ["ending"]}},
+                {"required": ["ending"], "not": {"required": ["goto"]}}
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "endings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {"text": {"type": "string"}},
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
