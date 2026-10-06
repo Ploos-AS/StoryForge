@@ -74,6 +74,17 @@ PUZZLE_DESIGNER = AuthoringRole(
     ),
 )
 
+CONTINUITY_EDITOR = AuthoringRole(
+    name="continuity-editor",
+    constraints=(
+        "Return only explicit add/replace proposal operations.",
+        "Treat established machine-readable facts as authoritative.",
+        "Do not silently rename character, location, item, scene, choice, or ending IDs.",
+        "Flag uncertainty instead of inventing a reconciliation.",
+        "Preserve deterministic gameplay semantics unless explicitly instructed otherwise.",
+    ),
+)
+
 
 def writer_request(story: dict, instruction: str) -> AuthoringRequest:
     return WRITER.request(story, instruction)
@@ -101,3 +112,13 @@ def propose_with_puzzle_designer(
     provider: AuthoringProvider, story: dict, instruction: str
 ) -> Proposal:
     return PUZZLE_DESIGNER.propose(provider, story, instruction)
+
+
+def continuity_request(story: dict, instruction: str) -> AuthoringRequest:
+    return CONTINUITY_EDITOR.request(story, instruction)
+
+
+def propose_with_continuity_editor(
+    provider: AuthoringProvider, story: dict, instruction: str
+) -> Proposal:
+    return CONTINUITY_EDITOR.propose(provider, story, instruction)
