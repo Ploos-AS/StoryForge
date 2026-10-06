@@ -8,6 +8,13 @@ class RuntimeError(ValueError):
 
 
 @dataclass(frozen=True)
+class AvailableAction:
+    id: str | None
+    text: str
+    commands: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class Turn:
     scene: str
     text: str
@@ -45,6 +52,18 @@ class Session:
         if self.ending is not None:
             return []
         return available_choices(self.story["scenes"][self.scene], self.state)
+
+    def actions(self) -> tuple[AvailableAction, ...]:
+        return tuple(
+            AvailableAction(choice.get("id"), str(choice["text"]), tuple(choice.get("commands", ())))
+            for choice in self.choices()
+        )
+
+    def choose_id(self, choice_id: str) -> Turn:
+        matches = [i for i, choice in enumerate(self.choices()) if choice.get("id") == choice_id]
+        if len(matches) != 1:
+            raise RuntimeError(f"choice id is not available: {choice_id}")
+        return self.choose(matches[0])
 
     def choose(self, index: int) -> Turn:
         if self.ending is not None:
