@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+import re
 import yaml
 
 from .loader import load_story
@@ -38,6 +39,8 @@ def main() -> int:
     init = sub.add_parser("init")
     init.add_argument("directory")
     init.add_argument("--title", default="Untitled Story")
+    init.add_argument("--id")
+    init.add_argument("--version", default="0.1.0")
     init.add_argument(
         "--profile",
         choices=["visual-novel", "point-and-click", "text-adventure"],
@@ -73,7 +76,8 @@ def main() -> int:
             print(f"ERROR: {story_path} already exists")
             return 1
         template = dict(TEMPLATE)
-        template["metadata"] = {"title": args.title, "profile": args.profile}
+        story_id = args.id or re.sub(r"[^a-z0-9._-]+", "-", args.title.casefold()).strip("-") or "story"
+        template["metadata"] = {"id": story_id, "version": args.version, "title": args.title, "profile": args.profile}
         story_path.write_text(
             yaml.safe_dump(template, sort_keys=False, allow_unicode=True),
             encoding="utf-8",
@@ -95,7 +99,8 @@ def main() -> int:
             if turn.ending is not None:
                 print(turn.ending_text)
                 return 0
-            print(f"\\n{turn.text}")
+            print(f"\
+{turn.text}")
             for index, choice in enumerate(turn.choices, 1):
                 print(f"  {index}. {choice}")
             if not turn.choices:

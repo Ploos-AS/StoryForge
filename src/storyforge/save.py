@@ -19,9 +19,14 @@ def dump_session(session: Session) -> dict:
         name: dict(attrs)
         for name, attrs in session.state.get("_characters", ())
     }
+    metadata = session.story.get("metadata", {})
+    story_identity = None
+    if metadata.get("id") and metadata.get("version"):
+        story_identity = {"id": metadata["id"], "version": metadata["version"]}
     return {
         "format": SAVE_FORMAT,
         "version": SAVE_VERSION,
+        "story": story_identity,
         "scene": session.scene,
         "ending": session.ending,
         "state": {
@@ -38,6 +43,13 @@ def load_session(story: dict, data: dict) -> Session:
         raise SaveError("not a StoryForge save")
     if data.get("version") != SAVE_VERSION:
         raise SaveError(f"unsupported save version: {data.get('version')!r}")
+
+    saved_story = data.get("story")
+    if saved_story is not None:
+        metadata = story.get("metadata", {})
+        current = {"id": metadata.get("id"), "version": metadata.get("version")}
+        if saved_story != current:
+            raise SaveError(f"save is for a different story/version: {saved_story!r}")
 
     scene = data.get("scene")
     ending = data.get("ending")
