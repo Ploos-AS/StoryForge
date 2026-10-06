@@ -41,11 +41,16 @@ class Session:
             choices=tuple(str(choice["text"]) for choice in choices),
         )
 
+    def choices(self) -> list[dict]:
+        if self.ending is not None:
+            return []
+        return available_choices(self.story["scenes"][self.scene], self.state)
+
     def choose(self, index: int) -> Turn:
         if self.ending is not None:
             raise RuntimeError("story has already ended")
         scene = self.story["scenes"][self.scene]
-        choices = available_choices(scene, self.state)
+        choices = self.choices()
         if index < 0 or index >= len(choices):
             raise RuntimeError(f"choice index out of range: {index}")
         choice = choices[index]
