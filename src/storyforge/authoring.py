@@ -107,6 +107,17 @@ ASSET_SPEC_GENERATOR = AuthoringRole(
     ),
 )
 
+PLAYTESTER = AuthoringRole(
+    name="playtester",
+    constraints=(
+        "Treat runtime snapshots and available action IDs as authoritative.",
+        "Never invent hidden state, actions, or successful outcomes.",
+        "Prefer adversarial and unusual but legal player strategies.",
+        "Report suspected narrative, usability, pacing, and gameplay issues as hypotheses.",
+        "Do not mutate StoryForge IR during playtesting.",
+    ),
+)
+
 
 def writer_request(story: dict, instruction: str) -> AuthoringRequest:
     return WRITER.request(story, instruction)
@@ -164,3 +175,13 @@ def propose_with_asset_spec_generator(
     provider: AuthoringProvider, story: dict, instruction: str
 ) -> Proposal:
     return ASSET_SPEC_GENERATOR.propose(provider, story, instruction)
+
+
+def playtest_request(story: dict, instruction: str) -> AuthoringRequest:
+    return PLAYTESTER.request(story, instruction)
+
+
+def propose_with_playtester(
+    provider: AuthoringProvider, story: dict, instruction: str
+) -> Proposal:
+    return PLAYTESTER.propose(provider, story, instruction)
