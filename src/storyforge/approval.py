@@ -50,3 +50,23 @@ def reject(proposal: Proposal, reviewer: str, note: str = "") -> Approval:
 
 def approval_matches(approval: Approval, proposal: Proposal) -> bool:
     return approval.proposal == proposal_fingerprint(proposal)
+
+
+def load_approval(data: dict) -> Approval:
+    if data.get("format") != APPROVAL_FORMAT:
+        raise ValueError("unsupported approval format")
+    if data.get("version") != APPROVAL_VERSION:
+        raise ValueError("unsupported approval version")
+    proposal = data.get("proposal")
+    decision = data.get("decision")
+    reviewer = data.get("reviewer")
+    note = data.get("note", "")
+    if not isinstance(proposal, str) or len(proposal) != 64:
+        raise ValueError("invalid proposal fingerprint")
+    if decision not in {"approved", "rejected"}:
+        raise ValueError("invalid approval decision")
+    if not isinstance(reviewer, str) or not reviewer.strip():
+        raise ValueError("reviewer must not be empty")
+    if not isinstance(note, str):
+        raise ValueError("approval note must be a string")
+    return Approval(proposal, decision, reviewer, note)
