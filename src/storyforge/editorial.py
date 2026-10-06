@@ -62,3 +62,28 @@ def run_editorial_pipeline(
         results.append(StageResult(stage.name, proposal, stage.apply, gate_result))
 
     return EditorialResult(current, tuple(results), halted=False)
+
+
+def resume_editorial_pipeline(
+    previous: EditorialResult,
+    stages: list[EditorialStage],
+    providers: dict[str, AuthoringProvider],
+) -> EditorialResult:
+    completed = len(previous.stages)
+    if completed > len(stages):
+        raise ValueError("previous run has more stages than pipeline definition")
+
+    for index, result in enumerate(previous.stages):
+        if result.stage != stages[index].name:
+            raise ValueError(
+                f"pipeline stage mismatch at {index}: "
+                f"{result.stage!r} != {stages[index].name!r}"
+            )
+
+    remaining = stages[completed:]
+    continued = run_editorial_pipeline(previous.story, remaining, providers)
+    return EditorialResult(
+        continued.story,
+        previous.stages + continued.stages,
+        halted=continued.halted,
+    )
