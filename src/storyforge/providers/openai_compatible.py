@@ -2,8 +2,8 @@ import json
 from dataclasses import dataclass
 from typing import Callable
 
-from .ai import Proposal, ProposalError, validate_proposal
-from .authoring import AuthoringRequest
+from ..ai import Proposal, ProposalError, validate_proposal
+from ..authoring import AuthoringRequest
 
 
 Transport = Callable[[str, dict, dict[str, str]], dict]
