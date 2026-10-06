@@ -1,0 +1,26 @@
+storyforge: "0"
+metadata:
+  title: The Lighthouse
+  profile: point-and-click
+start: harbour
+characters:
+  anna: {name: Anna}
+locations:
+  harbour: {name: Harbour}
+  lighthouse: {name: Lighthouse}
+items:
+  rusty_key: {name: Rusty key}
+variables: {}
+scenes:
+  harbour:
+    text: "Rain sweeps across the harbour. The lighthouse is dark."
+    choices:
+      - {text: "Walk to the lighthouse", goto: lighthouse}
+  lighthouse:
+    text: "The old lighthouse door stands before you."
+    choices:
+      - {text: "Knock on the door", ending: unanswered}
+      - {text: "Return to the harbour", goto: harbour}
+endings:
+  unanswered:
+    text: "No one answers. For tonight, the mystery remains."
