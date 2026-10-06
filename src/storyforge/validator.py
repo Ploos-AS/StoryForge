@@ -5,6 +5,7 @@ def validate_story(story: dict) -> list[str]:
     errors: list[str] = []
     if story.get("storyforge") != "0":
         errors.append("storyforge must be '0'")
+    variables = story.get("variables", {})
     start = story.get("start")
     scenes = story.get("scenes", {})
     endings = story.get("endings", {})
@@ -20,6 +21,12 @@ def validate_story(story: dict) -> list[str]:
             errors.append(f"scene {scene_id!r} must be a mapping")
             continue
         for choice in scene.get("choices", []):
+            for req in choice.get("requires", []):
+                if req.get("variable") not in variables:
+                    errors.append(f"choice in {scene_id!r} requires unknown variable {req.get('variable')!r}")
+            for effect in choice.get("effects", []):
+                if effect.get("variable") not in variables:
+                    errors.append(f"choice in {scene_id!r} changes unknown variable {effect.get('variable')!r}")
             target, ending = choice.get("goto"), choice.get("ending")
             if bool(target) == bool(ending):
                 errors.append(f"choice in {scene_id!r} must have exactly one of goto or ending")
