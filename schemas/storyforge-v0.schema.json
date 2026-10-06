@@ -3,42 +3,222 @@
   "$id": "https://ploos.no/storyforge/schema/v0",
   "title": "StoryForge IR v0",
   "type": "object",
-  "required": ["storyforge", "start", "scenes", "endings"],
+  "required": [
+    "storyforge",
+    "start",
+    "scenes",
+    "endings"
+  ],
   "properties": {
-    "storyforge": {"const": "0"},
+    "storyforge": {
+      "const": "0"
+    },
     "metadata": {
       "type": "object",
       "properties": {
-        "title": {"type": "string", "minLength": 1},
-        "profile": {"enum": ["visual-novel", "point-and-click", "text-adventure"]}
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile": {
+          "enum": [
+            "visual-novel",
+            "point-and-click",
+            "text-adventure"
+          ]
+        }
       },
       "additionalProperties": true
     },
-    "start": {"type": "string", "minLength": 1},
-    "characters": {"type": "object"},
-    "locations": {"type": "object"},
-    "items": {"type": "object"},
-    "variables": {"type": "object"},
+    "start": {
+      "type": "string",
+      "minLength": 1
+    },
+    "characters": {
+      "type": "object"
+    },
+    "locations": {
+      "type": "object"
+    },
+    "items": {
+      "type": "object"
+    },
+    "variables": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "boolean",
+          "integer",
+          "number",
+          "string"
+        ]
+      }
+    },
     "scenes": {
       "type": "object",
       "minProperties": 1,
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "text": {"type": "string"},
+          "text": {
+            "type": "string"
+          },
           "choices": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["text"],
+              "required": [
+                "text"
+              ],
               "properties": {
-                "text": {"type": "string", "minLength": 1},
-                "goto": {"type": "string", "minLength": 1},
-                "ending": {"type": "string", "minLength": 1}
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "goto": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ending": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "requires": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "variable",
+                      "equals"
+                    ],
+                    "properties": {
+                      "variable": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "equals": {
+                        "type": [
+                          "boolean",
+                          "integer",
+                          "number",
+                          "string"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "effects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "variable"
+                    ],
+                    "properties": {
+                      "variable": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "set": {
+                        "type": [
+                          "boolean",
+                          "integer",
+                          "number",
+                          "string"
+                        ]
+                      },
+                      "increment": {
+                        "type": "number"
+                      },
+                      "decrement": {
+                        "type": "number"
+                      }
+                    },
+                    "oneOf": [
+                      {
+                        "required": [
+                          "set"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "increment"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "decrement"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "increment"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "set"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "decrement"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "required": [
+                          "decrement"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "set"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "increment"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "additionalProperties": false
+                  }
+                }
               },
               "oneOf": [
-                {"required": ["goto"], "not": {"required": ["ending"]}},
-                {"required": ["ending"], "not": {"required": ["goto"]}}
+                {
+                  "required": [
+                    "goto"
+                  ],
+                  "not": {
+                    "required": [
+                      "ending"
+                    ]
+                  }
+                },
+                {
+                  "required": [
+                    "ending"
+                  ],
+                  "not": {
+                    "required": [
+                      "goto"
+                    ]
+                  }
+                }
               ],
               "additionalProperties": false
             }
@@ -51,7 +231,11 @@
       "type": "object",
       "additionalProperties": {
         "type": "object",
-        "properties": {"text": {"type": "string"}},
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
         "additionalProperties": false
       }
     }
