@@ -1,4 +1,5 @@
 import argparse
+import json
 from pathlib import Path
 import re
 import yaml
@@ -14,6 +15,8 @@ from .analysis import dead_states
 from .limits import StateSpaceLimitError
 from .runtime import Session
 from .parser import parse_command
+from .approval import approve, reject
+from .editorial_run import restore_editorial_result
 
 
 TEMPLATE = {
@@ -66,6 +69,17 @@ def main() -> int:
     solve_cmd.add_argument("story")
     solve_cmd.add_argument("--max-states", type=int, default=10_000)
 
+    status = sub.add_parser("run-status")
+    status.add_argument("run")
+
+    review = sub.add_parser("review")
+    review.add_argument("run")
+    review.add_argument("stage")
+    review.add_argument("decision", choices=["approve", "reject"])
+    review.add_argument("--reviewer", required=True)
+    review.add_argument("--note", default="")
+    review.add_argument("-o", "--output", required=True)
+
     export = sub.add_parser("export")
     export.add_argument("target", choices=["renpy"])
     export.add_argument("story")
@@ -88,6 +102,34 @@ def main() -> int:
             encoding="utf-8",
         )
         print(story_path)
+        return 0
+
+    if args.command in {"run-status", "review"}:
+        data = json.loads(Path(args.run).read_text(encoding="utf-8"))
+        run = restore_editorial_result(data)
+        if args.command == "run-status":
+            print(f"halted: {str(run.halted).lower()}")
+            print(f"stages: {len(run.stages)}")
+            for item in run.stages:
+                gate = "none" if item.gate is None else ("pass" if item.gate.accepted else "fail")
+                print(f"{item.stage}: applied={str(item.applied).lower()} gate={gate}")
+            return 0
+
+        matches = [item for item in run.stages if item.stage == args.stage]
+        if len(matches) != 1:
+            print(f"ERROR: expected exactly one stage named {args.stage!r}")
+            return 2
+        item = matches[0]
+        artifact = (
+            approve(item.proposal, args.reviewer, args.note)
+            if args.decision == "approve"
+            else reject(item.proposal, args.reviewer, args.note)
+        )
+        Path(args.output).write_text(
+            json.dumps(artifact.to_dict(), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(args.output)
         return 0
 
     story = load_story(args.story)
