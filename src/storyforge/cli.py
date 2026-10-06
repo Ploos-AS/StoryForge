@@ -9,6 +9,7 @@ from .exporters.renpy import export_renpy
 from .solver import solve, unreachable_endings
 from .analysis import dead_states
 from .limits import StateSpaceLimitError
+from .runtime import Session
 
 
 TEMPLATE = {
@@ -41,6 +42,9 @@ def main() -> int:
         choices=["visual-novel", "point-and-click", "text-adventure"],
         default="text-adventure",
     )
+
+    play = sub.add_parser("play")
+    play.add_argument("story")
 
     validate = sub.add_parser("validate")
     validate.add_argument("story")
@@ -82,6 +86,25 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 1
+
+    if args.command == "play":
+        session = Session(story)
+        while True:
+            turn = session.view()
+            if turn.ending is not None:
+                print(turn.ending_text)
+                return 0
+            print(f"\\n{turn.text}")
+            for index, choice in enumerate(turn.choices, 1):
+                print(f"  {index}. {choice}")
+            if not turn.choices:
+                print("No available choices.")
+                return 3
+            try:
+                selected = int(input("> ")) - 1
+                session.choose(selected)
+            except (ValueError, RuntimeError) as error:
+                print(f"ERROR: {error}")
 
     if args.command == "validate":
         print("OK")
