@@ -96,6 +96,17 @@ GAME_DESIGNER = AuthoringRole(
     ),
 )
 
+ASSET_SPEC_GENERATOR = AuthoringRole(
+    name="asset-spec-generator",
+    constraints=(
+        "Return only explicit add/replace proposal operations.",
+        "Describe required assets; do not embed generated binary data in StoryForge IR.",
+        "Keep semantic intent separate from target-specific technical constraints.",
+        "Use stable asset IDs suitable for external generators and build pipelines.",
+        "Do not assume a specific image, audio, or AI provider.",
+    ),
+)
+
 
 def writer_request(story: dict, instruction: str) -> AuthoringRequest:
     return WRITER.request(story, instruction)
@@ -143,3 +154,13 @@ def propose_with_game_designer(
     provider: AuthoringProvider, story: dict, instruction: str
 ) -> Proposal:
     return GAME_DESIGNER.propose(provider, story, instruction)
+
+
+def asset_spec_request(story: dict, instruction: str) -> AuthoringRequest:
+    return ASSET_SPEC_GENERATOR.request(story, instruction)
+
+
+def propose_with_asset_spec_generator(
+    provider: AuthoringProvider, story: dict, instruction: str
+) -> Proposal:
+    return ASSET_SPEC_GENERATOR.propose(provider, story, instruction)
