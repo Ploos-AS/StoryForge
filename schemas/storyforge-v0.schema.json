@@ -941,6 +941,10 @@
                     "minLength": 1
                   },
                   "uniqueItems": true
+                },
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
                 }
               },
               "oneOf": [
